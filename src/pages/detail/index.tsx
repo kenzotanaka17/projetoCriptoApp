@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { CoinProps } from "../home";
+import styles from './detail.module.css'
 
 interface ResponseData {
     data: CoinProps
@@ -18,6 +19,7 @@ export function Detail() {
     const navigate = useNavigate();
 
     const [moeda, setMoeda] = useState<CoinProps>();
+    const [loading, setLoading] = useState(true);
 
     useEffect( () => {
         async function getCoin() {
@@ -49,6 +51,7 @@ export function Detail() {
                     }
                     
                     setMoeda(resultData)
+                    setLoading(false);
 
                 })
             } catch(err) {
@@ -59,10 +62,40 @@ export function Detail() {
 
         getCoin();
     }, [cripto])
+
+    if(loading || !moeda) {
+        return(
+            <div className={styles.container}>
+                <h4 className={styles.center}>Carregando os detalhes da moeda {cripto}</h4>
+            </div>
+        )
+    }
     
     return(
-        <div>
-            <h1>Pagina detalhe da moeda {cripto}</h1>
+        <div className={styles.container}>
+            <h1 className={styles.center}>{moeda?.name}</h1>
+            <h1 className={styles.center}>{moeda?.symbol}</h1>
+
+            <section className={styles.content}>
+                <img 
+                    src={`https://assets.coincap.io/assets/icons/${moeda?.symbol.toLowerCase()}@2x.png`}
+                    alt='Logo da moeda'
+                    className={styles.logo}
+                />
+                <h1>{moeda?.name} | {moeda?.symbol}</h1>
+
+                <p><strong> Preço: </strong> {moeda?.formatedPrice}</p>
+
+                <a>
+                    <strong>Mercado: </strong>{moeda?.formatedMarket}
+                </a>
+                <a>
+                    <strong>Volume: </strong>{moeda?.formatedVolume}
+                </a>
+                <a>
+                    <strong>Mudança 24h: </strong><span className={Number(moeda?.changePercent24Hr) > 0 ? styles.profit : styles.loss}>{Number(moeda?.changePercent24Hr).toFixed(3)}</span>
+                </a>
+            </section>
         </div>
     )
 }
