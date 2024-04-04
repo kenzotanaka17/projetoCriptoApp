@@ -29,15 +29,16 @@ export function Home() {
 
     const [input, setInput] = useState("");
     const [moeda, setMoeda] = useState<CoinProps[]>([]);
+    const [offSet, setOffset] = useState(0);
 
     const navigate = useNavigate();
 
     useEffect( () => {
         getData();
-    }, [])
+    }, [offSet])
 
     async function getData() {
-        fetch('https://api.coincap.io/v2/assets?limit=10&offset=0')
+        fetch(`https://api.coincap.io/v2/assets?limit=10&offset=${offSet}`)
         .then(response => response.json())
         .then((data : DataProps) => {
             const coinsData = data.data;
@@ -63,7 +64,8 @@ export function Home() {
                 return formated
             })
 
-            setMoeda(formatedResult)
+            const listMoedas = [...moeda, ...formatedResult]
+            setMoeda(listMoedas)
 
         })
     }
@@ -79,7 +81,12 @@ export function Home() {
 
     }
     function handleGetMore() {
-        alert('clicou no carregar mais')
+        if(offSet === 0) {
+            setOffset(10)
+            return;
+        } else {
+            setOffset(offSet + 10)
+        }
     }
 
     return(
